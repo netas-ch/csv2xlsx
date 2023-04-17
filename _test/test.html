@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!--
+Copyright © 2023 Netas Ltd., Switzerland.
+All rights reserved.
+@author  Lukas Buchs, lukas.buchs@netas.ch
+@date    2023-04-12
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            window.onload = async () => {
+                const ct = await import('../src/xl/Styles.js');
+                console.log(ct.Styles.styles([{type:'number', formatCode: '"CHF"\\ #,##0.00'}]));
+            };
+        </script>
+    </head>
+    <body>
+        <div>TODO write content</div>
+    </body>
+</html>
