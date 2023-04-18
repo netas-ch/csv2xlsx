@@ -10,7 +10,6 @@ export class Theme {
 
     /**
      * theme1.xml
-     * @param {Array|null} sheets
      * @returns {String}
      */
     static theme() {

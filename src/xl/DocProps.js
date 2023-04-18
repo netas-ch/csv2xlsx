@@ -68,18 +68,18 @@ export class DocProps {
         xml.createAppend('root', 'subject', xmlns_dc, null, subject ? subject : '');
         xml.createAppend('root', 'creator', xmlns_dc, null, creator ? creator : '');
         xml.createAppend('root', 'lastModifiedBy', xmlns_cp, null, lastModifiedBy ? lastModifiedBy : (creator ? creator : ''));
-
-        if (!created) {
-            created = new Date();
-        }
-        const cr = xml.createAppend('root', 'created', xmlns_dcterms, null, created.toISOString());
-        xml.setAttribute(cr, 'xsi:type', 'dcterms:W3CDTF', xmlns_xsi);
-
-        if (!modified) {
-            modified = new Date();
-        }
-        const md = xml.createAppend('root', 'modified', xmlns_dcterms, null, modified.toISOString());
-        xml.setAttribute(md, 'xsi:type', 'dcterms:W3CDTF', xmlns_xsi);
+//
+//        if (!created) {
+//            created = new Date();
+//        }
+//        const cr = xml.createAppend('root', 'created', xmlns_dcterms, null, created.toISOString());
+//        xml.setAttribute(cr, 'xsi:type', 'dcterms:W3CDTF', xmlns_xsi);
+//
+//        if (!modified) {
+//            modified = new Date();
+//        }
+//        const md = xml.createAppend('root', 'modified', xmlns_dcterms, null, modified.toISOString());
+//        xml.setAttribute(md, 'xsi:type', 'dcterms:W3CDTF', xmlns_xsi);
 
         return xml.getXml();
     }

@@ -25,14 +25,14 @@ export class Workbook {
 
         for (let i=0; i<sheets.length; i++) {
             const se = xml.createAppend(sheetsEl, 'sheet', null, {name: sheets[i], sheetId: (i+1).toString()});
-            xml.setAttribute(se, 'r:id', 'rId_sheet' + (i+1), 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
+            xml.setAttribute(se, 'r:id', 'rId' + (i+1), 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
         }
 
         return xml.getXml();
     }
 
     /**
-     * \_rels\.rels file
+     * \xl\_rels\workbook.xml.rels file
      * @param {Array|null} sheets
      * @returns {String}
      */
@@ -44,10 +44,10 @@ export class Workbook {
         }
 
         for (let i=0; i<sheets.length; i++) {
-            xml.createAppend('root', 'Relationship', null, {Id:'rId_sheet' + (i+1), Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet', Target:'worksheets/sheet' + (i+1) + '.xml'});
+            xml.createAppend('root', 'Relationship', null, {Id:'rId' + (i+1), Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet', Target:'worksheets/sheet' + (i+1) + '.xml'});
         }
-        xml.createAppend('root', 'Relationship', null, {Id:'rId_theme1', Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme', Target:'theme/theme1.xml'});
-        xml.createAppend('root', 'Relationship', null, {Id:'rId_style1', Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles', Target:'styles.xml'});
+        xml.createAppend('root', 'Relationship', null, {Id:'rId' + (sheets.length+1), Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme', Target:'theme/theme1.xml'});
+        xml.createAppend('root', 'Relationship', null, {Id:'rId' + (sheets.length+2), Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles', Target:'styles.xml'});
 
         return xml.getXml();
     }

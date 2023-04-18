@@ -27,9 +27,10 @@ export class NullZipArchive extends NullDownloader {
 	 * Creates a new non-compressing zip archive
 	 * @param {string} filename File names. Must be ASCII
 	 * @param {boolean=} createFolderEntries If true a zip entry is made for each folder (subfolders should work without this)
+	 * @param {string} mime Content Type
 	 */
-	constructor(filename, createFolderEntries) {
-		super(filename, 'application/zip');
+	constructor(filename, createFolderEntries, mime='application/zip') {
+		super(filename, mime);
 		this.files = [];
 		this.createFolderEntries = !!createFolderEntries;
 

@@ -26,7 +26,7 @@ export class ContentTypes {
            // { PartName:"/xl/worksheets/sheet3.xml", ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" },
             { PartName:"/xl/theme/theme1.xml", ContentType: "application/vnd.openxmlformats-officedocument.theme+xml" },
             { PartName:"/xl/styles.xml", ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" },
-            { PartName:"/xl/sharedStrings.xml", ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" },
+            //{ PartName:"/xl/sharedStrings.xml", ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" },
            // { PartName:"/xl/tables/table1.xml", ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml" },
             { PartName:"/docProps/core.xml", ContentType: "application/vnd.openxmlformats-package.core-properties+xml" },
             { PartName:"/docProps/app.xml", ContentType: "application/vnd.openxmlformats-officedocument.extended-properties+xml" }

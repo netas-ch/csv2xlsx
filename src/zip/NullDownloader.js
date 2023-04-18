@@ -67,9 +67,8 @@ export class NullDownloader {
 		}
 		link.href = this.createDownloadUrl();
 		link.download = this._filename;
-		if (!link.hasChildNodes) {
-			link.innerText = this._filename;
-		}
+                link.innerText = this._filename;
+		
 		return link;
 	}
 }

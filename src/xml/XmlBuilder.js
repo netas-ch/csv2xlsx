@@ -10,6 +10,7 @@ export class XmlBuilder {
         #rootNode;
         #xmlVersion;
         #xmlStandalone;
+        #rootNamespaces;
 
     constructor(rootName=null, rootNamespace=null, xmlVersion='1.0', xmlStandalone=true) {
         this.#xml = document.implementation.createDocument('', '', null);
@@ -19,6 +20,7 @@ export class XmlBuilder {
 
         this.#xmlVersion = xmlVersion;
         this.#xmlStandalone = !!xmlStandalone;
+        this.#rootNamespaces = [rootNamespace];
     }
 
     /**
@@ -64,6 +66,22 @@ export class XmlBuilder {
             nodeNamespace = appendTo.namespaceURI;
         }
 
+        // add node namespace to root element
+        if (this.#rootNode && nodeNamespace !== this.#rootNode.namespaceURI) {
+            if (this.#rootNamespaces.indexOf(nodeNamespace) === -1) {
+
+                let namespacePrefix = 'nts' + this.#rootNamespaces.length;
+
+                if (nodeName.split(':').length === 2) {
+                    namespacePrefix = nodeName.split(':')[0];
+                } else {
+                    nodeName = namespacePrefix + ':' + nodeName;
+                }
+
+                this.#rootNode.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + namespacePrefix, nodeNamespace);
+                this.#rootNamespaces.push(nodeNamespace);
+            }
+        }
 
         if (!nodeNamespace) {
             nde = this.#xml.createElement(nodeName);
@@ -103,6 +121,24 @@ export class XmlBuilder {
         if (!attributeNamespace) {
             attr = this.#xml.createAttribute(attributeName);
         } else {
+
+            // add node namespace to root element
+            if (this.#rootNode && attributeNamespace !== this.#rootNode.namespaceURI) {
+                if (this.#rootNamespaces.indexOf(attributeNamespace) === -1) {
+
+                    let namespacePrefix = 'nts' + this.#rootNamespaces.length;
+
+                    if (attributeName.split(':').length === 2) {
+                        namespacePrefix = attributeName.split(':')[0];
+                    } else {
+                        attributeName = namespacePrefix + ':' + attributeName;
+                    }
+
+                    this.#rootNode.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + namespacePrefix, attributeNamespace);
+                    this.#rootNamespaces.push(attributeNamespace);
+                }
+            }
+
             attr = this.#xml.createAttributeNS(attributeNamespace, attributeName);
         }
 

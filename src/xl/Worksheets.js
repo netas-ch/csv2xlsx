@@ -26,23 +26,28 @@ export class Worksheets {
 
         // sheetFormatPr
         let sheetFormatPr = xml.createAppend('root', 'sheetFormatPr', null, { baseColWidth: '10', defaultRowHeight: '14.5' });
-        xml.setAttribute(sheetFormatPr, 'dyDescent', '0.35', xmlnsX14ac);
+        xml.setAttribute(sheetFormatPr, 'x14ac:dyDescent', '0.35', xmlnsX14ac);
 
         // special column widths
-        const cols = xml.createAppend('root', 'cols');
+        let cols = null;
         for (const column of columns) {
             if (column.width && column.width !== 10) {
+
+                if (cols === null) {
+                    cols = xml.createAppend('root', 'cols');
+                }
+
                 xml.createAppend(cols, 'col', null, { min: columns.indexOf(column)+1, max: columns.indexOf(column)+1, width: column.width, customWidth: 1 });
             }
         }
 
         // rows
-        let sheetData = xml.createAppend('root', 'sheetData');
+        const sheetData = xml.createAppend('root', 'sheetData');
 
         for (const row of rows) {
             const rowNr = rows.indexOf(row) + 1;
             let rowEl = xml.createAppend(sheetData, 'row', null, {r: rowNr.toString(), spans: '1:' + columns.length.toString() });
-            xml.setAttribute(rowEl, 'dyDescent', '0.35', xmlnsX14ac);
+            xml.setAttribute(rowEl, 'x14ac:dyDescent', '0.35', xmlnsX14ac);
 
             // columns
             for (const column of columns) {
@@ -52,45 +57,77 @@ export class Worksheets {
                 attributes.r = Utils.numericToAlphaColumn(colNr) + rowNr.toString();
 
                 // field type
-                if (column.type === 'text') {
-                    attributes.t = 'inlineStr';
-                } else {
+                if (rowNr === 1 || !column.type || column.type === 'text') {
+                    //attributes.t = 'inlineStr';
+                    attributes.t = 'str';
+                } else if (column.type) {
                     attributes.s = columnTypes.indexOf(column.columnType) + 1;
                 }
 
-                // column.columnType
-                const cEl = xml.createAppend(rowEl, 'c', null, attributes);
+                // column
+                const cEl = xml.createAppend(rowEl, 'c', null, attributes), val = Worksheets.#getValueAsStr(row[column.rowKey]);
 
-                if (!column.type || column.type === 'text') {
+                // column value
+                if (val !== '') {
 
-                    // inline string
-                    xml.createAppend(xml.createAppend(cEl, 'is'), 't', row[column.rowKey]);
+                    // first row as string as its the header
+                    if (rowNr === 1 || !column.type || column.type === 'text') {
 
-                } else {
+                        // inline string
+                        //xml.createAppend(xml.createAppend(cEl, 'is'), 't', null, null, val);
+                        xml.createAppend(cEl, 'v', null, null, val);
 
-                    // numeric value
-                    xml.createAppend(cEl, 'v', row[column.rowKey]);
+                    } else {
+
+                        // numeric value
+                        xml.createAppend(cEl, 'v', null, null, val);
+                    }
                 }
             }
         }
 
-
+        // tableParts
+        const tableParts = xml.createAppend('root', 'tableParts', null, {count: '1'});
+        const tablePart = xml.createAppend(tableParts, 'tablePart');
+        xml.setAttribute(tablePart, 'id', 'rId1', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
 
         return xml.getXml();
     }
 
     /**
-     * \_rels\.rels file
-     * @param {Array|null} sheets
+     * \xl\worksheets\_rels\sheet1.xml.rels file
      * @returns {String}
      */
-    static rels(sheets=null) {
+    static rels() {
         const xml = new XmlBuilder('Relationships', 'http://schemas.openxmlformats.org/package/2006/relationships');
-
         xml.createAppend('root', 'Relationship', null, {Id:'rId1', Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/table', Target:'../tables/table1.xml'});
-
-
         return xml.getXml();
+    }
+
+
+    /**
+     * return a value as a string
+     * @param {Mixed} rawValue
+     * @returns {String}
+     */
+    static #getValueAsStr(rawValue) {
+        if (rawValue === '' || rawValue === null || typeof rawValue === 'undefined') {
+            return '';
+        }
+        if (typeof rawValue === 'string') {
+            return rawValue;
+        }
+        if (typeof rawValue === 'number') {
+            return rawValue.toString();
+        }
+        if (rawValue instanceof Date) {
+            return Utils.dateToExcelTimestamp(rawValue).toString();
+        }
+        if (rawValue && rawValue.toString) {
+            return rawValue.toString();
+        }
+
+        return '';
     }
 
 }

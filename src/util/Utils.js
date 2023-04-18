@@ -62,12 +62,41 @@ export class Utils {
     }
 
     /**
+     * Check if a string value is a date and time
+     * @param {String} str
+     * @returns {Boolean}
+     */
+    static stringIsDateTime(str) {
+        let mtch = str.match(/^(\d{4})(?:\-|\/)([0-1][0-9])(?:\-|\/)([0-3][0-9])(?:(?:T| )([0-2][0-9])\:([0-5][0-9])\:([0-5][0-9](?:\.\d+)?))?$/);
+        if (mtch && mtch[4]) {
+            return true;
+        }
+
+        mtch = str.match(/^([0-3][0-9])\.([0-1][0-9])\.(\d{4})(?: ([0-2][0-9])\:([0-5][0-9])(?:\:([0-5][0-9](?:\.\d+)?))?)?$/);
+        if (mtch && mtch[4]) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Check if a string value is a date
      * @param {String} str
      * @returns {Boolean}
      */
     static stringIsDate(str) {
-        return General.parseDate(str + '') !== null;
+        let mtch = str.match(/^(\d{4})(?:\-|\/)([0-1][0-9])(?:\-|\/)([0-3][0-9])(?:(?:T| )([0-2][0-9])\:([0-5][0-9])\:([0-5][0-9](?:\.\d+)?))?$/);
+        if (mtch) {
+            return true;
+        }
+
+        mtch = str.match(/^([0-3][0-9])\.([0-1][0-9])\.(\d{4})(?: ([0-2][0-9])\:([0-5][0-9])(?:\:([0-5][0-9](?:\.\d+)?))?)?$/);
+        if (mtch) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -85,7 +114,7 @@ export class Utils {
      * @returns {Boolean}
      */
     static stringIsFloat(str) {
-        return !!(!General.isInteger(str) && !isNaN(parseFloat(str)) && str.match(/^\d+(?:\.\d+)?$/));
+        return !!(!Utils.stringIsInteger(str) && !isNaN(parseFloat(str)) && str.match(/^\d+(?:\.\d+)?$/));
     }
 
     /**

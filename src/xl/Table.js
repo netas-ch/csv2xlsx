@@ -10,20 +10,20 @@ import {Utils} from '../util/Utils.js';
 export class Table {
 
     /**
-     * Workbook.xml
+     * table.xml
      * @param {Array} columnTypes
      * @param {Array} columns
      * @param {Array} rows
      * @returns {String}
      */
-    static table(columnTypes, columns, rows) {
+    static table(columnTypes, columns, rows, tableId=1) {
         const xmlnsX14ac = 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac';
         const xml = new XmlBuilder('table', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         const tableDimension = 'A1:' + Utils.numericToAlphaColumn(columns.length) + rows.length.toString();
 
-        xml.setAttribute('root', 'id', '1');
-        xml.setAttribute('root', 'name', 'Tabelle1');
-        xml.setAttribute('root', 'displayName', 'Tabelle1');
+        xml.setAttribute('root', 'id', tableId.toString());
+        xml.setAttribute('root', 'name', 'Tabelle' + tableId);
+        xml.setAttribute('root', 'displayName', 'Tabelle' + tableId);
         xml.setAttribute('root', 'ref', tableDimension);
 
         xml.createAppend('root', 'autoFilter', null, {ref: tableDimension});
@@ -40,7 +40,7 @@ export class Table {
 
             if (column.columnType) {
                 if (columnTypes.indexOf(column.columnType) !== -1) {
-                    attributes.dataDxfId = columnTypes.indexOf(column.columnType);
+              //      attributes.dataDxfId = columnTypes.indexOf(column.columnType);
                 }
                 if (column.columnType.totalsRowFunction) {
                     attributes.totalsRowFunction = column.columnType.totalsRowFunction;

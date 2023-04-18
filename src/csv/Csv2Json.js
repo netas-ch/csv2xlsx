@@ -1,4 +1,4 @@
-(function() {
+const Csv2Json = (function() {
   /**
    * MIT License
    *
@@ -21,7 +21,7 @@
    * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    * SOFTWARE.
-   * 
+   *
    *
    * Node:
    * const csv2json = require('./csv2json.js');
@@ -121,9 +121,15 @@
       throw error.message + ' On line ' + error.line + ' and column ' + error.column + '.\n' + line;
     }
 
-    if (options.transpose) a = zip.apply(this, a);
+    if (options.transpose) {
+        a = zip.apply(this, a);
+    }
+    if (options.returnArray) {
+        return a;
+    }
 
     var keys = a.shift();
+
     if (keys.length == 0) throw errorEmptyHeader;
     keys = keys.map(function(key) {
       return key.trim().replace(/(^")|("$)/g, '');
@@ -952,7 +958,7 @@
     return result;
   })();
 
-
+/*
   // CommonJS or Browser
   if (typeof exports !== 'undefined') {
       if (typeof module !== 'undefined' && module.exports) {
@@ -963,5 +969,9 @@
     this.CSVJSON || (this.CSVJSON = {});
     this.CSVJSON.csv2json = convert;
   }
-
+*/
+    return convert;
 }).call(this);
+
+
+export { Csv2Json };

@@ -9,7 +9,7 @@ import {XmlBuilder} from '../xml/XmlBuilder.js';
 export class Styles {
 
     /**
-     * Workbook.xml
+     * /xl/styles.xml
      * @param {Array} columnTypes
      * @returns {String}
      */
@@ -55,7 +55,9 @@ export class Styles {
         // cellStyleXfs
         xml.createAppend(xml.createAppend('root', 'cellStyleXfs', null, {count: '1' }), 'xf', null, { numFmtId: '0', fontId: '0', fillId: '0', borderId: '0' });
 
-        const cellXfs = xml.createAppend('root', 'cellXfs', null, {count: columnTypes.length.toString() });
+        const cellXfs = xml.createAppend('root', 'cellXfs', null, {count: (columnTypes.length+1).toString() });
+        xml.createAppend(cellXfs, 'xf', null, {numFmtId: '0', fontId: "0", fillId: "0", borderId: "0", xfId: "0" });
+
         for (const columnType of columnTypes) {
             xml.createAppend(cellXfs, 'xf', null, {numFmtId: columnType.numFmtId.toString(), fontId: "0", fillId: "0", borderId: "0", xfId: "0", applyNumberFormat: columnType.applyNumberFormat ? '1' : '0' });
         }
@@ -71,27 +73,6 @@ export class Styles {
         // tableStyles
         xml.createAppend('root', 'tableStyles', null, { count: "0", defaultTableStyle: "TableStyleMedium2", defaultPivotStyle: "PivotStyleLight16" });
 
-
-        return xml.getXml();
-    }
-
-    /**
-     * \_rels\.rels file
-     * @param {Array|null} sheets
-     * @returns {String}
-     */
-    static rels(sheets=null) {
-        const xml = new XmlBuilder('Relationships', 'http://schemas.openxmlformats.org/package/2006/relationships');
-
-        if (sheets === null) {
-            sheets = ['Sheet 1'];
-        }
-
-        for (let i=0; i<sheets.length; i++) {
-            xml.createAppend('root', 'Relationship', null, {Id:'rId_sheet' + (i+1), Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet', Target:'worksheets/sheet' + (i+1) + '.xml'});
-        }
-        xml.createAppend('root', 'Relationship', null, {Id:'rId_theme1', Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme', Target:'theme/theme1.xml'});
-        xml.createAppend('root', 'Relationship', null, {Id:'rId_style1', Type:'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles', Target:'styles.xml'});
 
         return xml.getXml();
     }

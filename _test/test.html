@@ -10,10 +10,19 @@ All rights reserved.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../src/Csv2Xlsx.js" type="text/javascript"></script>
         <script>
             window.onload = async () => {
-                const ct = await import('../src/xl/Styles.js');
-                console.log(ct.Styles.styles([{type:'number', formatCode: '"CHF"\\ #,##0.00'}]));
+                /*const ct = await import('../src/csv/CsvProcessing.js');
+
+                let csv = "A;B;C;D;\"Hallo\"\n1.1;2;3;4;5\n1;2;3;4;5\n1;2;3;4;5\n1;2;3;4;5\n1;2;3;4;5\n1;2;3;4;\"Das ist \n ein Test\"";
+                new ct.CsvProcessing(csv);*/
+
+
+
+                let x = await Csv2Xlsx.convertCsv('http://localhost/csv2xlsx/_test/test.csv', null, console.log);
+console.log(x);
+                document.body.appendChild(x);
             };
         </script>
     </head>
