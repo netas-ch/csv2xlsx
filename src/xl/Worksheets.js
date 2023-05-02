@@ -51,21 +51,24 @@ export class Worksheets {
 
             // columns
             for (const column of columns) {
-                const colNr = columns.indexOf(column) + 1, attributes = {};
+                const colNr = columns.indexOf(column) + 1, attributes = {}, val = Worksheets.#getValueAsStr(row[column.rowKey]);
 
                 // attributes
                 attributes.r = Utils.numericToAlphaColumn(colNr) + rowNr.toString();
 
                 // field type
                 if (rowNr === 1 || !column.type || column.type === 'text') {
-                    //attributes.t = 'inlineStr';
-                    attributes.t = 'str';
+
+                    if (val !== '') {
+                        attributes.t = 'str';
+                    }
+
                 } else if (column.type) {
                     attributes.s = columnTypes.indexOf(column.columnType) + 1;
                 }
 
                 // column
-                const cEl = xml.createAppend(rowEl, 'c', null, attributes), val = Worksheets.#getValueAsStr(row[column.rowKey]);
+                const cEl = xml.createAppend(rowEl, 'c', null, attributes);
 
                 // column value
                 if (val !== '') {
@@ -118,7 +121,11 @@ export class Worksheets {
             return rawValue;
         }
         if (typeof rawValue === 'number') {
-            return rawValue.toString();
+            if (isNaN(rawValue)) {
+                return '';
+            } else {
+                return rawValue.toString();
+            }
         }
         if (rawValue instanceof Date) {
             return Utils.dateToExcelTimestamp(rawValue).toString();

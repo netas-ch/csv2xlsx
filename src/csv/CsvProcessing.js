@@ -19,6 +19,13 @@ export class CsvProcessing {
         number: '#,##0',
         float: '#,##0.0'
     };
+    #defaultColumnWidths = {
+        text: 0,
+        date: 12,
+        datetime: 16,
+        number: 0,
+        float: 0
+    };
 
     constructor(csvString, formatCodes) {
         this.#rows = Csv2Json(csvString, {separator: ';', returnArray: true});
@@ -31,11 +38,18 @@ export class CsvProcessing {
 
         for (let i = 0; i < this.#getColumnCount(); i++) {
             const t = this.#getColumnType(i, 1);
+
+            // column width
+            let cW = this.#defaultColumnWidths[t] ? this.#defaultColumnWidths[t] : 0;
+            if (t === 'text') {
+                cW = this.#getColumnWidth(i, 1);
+            }
+
             this.#columns.push({
-                name: this.#rows && this.#rows[0] && this.#rows[0][i] ? this.#rows[0][i] : 'Column ' + (i+1),
+                name: this.#rows && this.#rows[0] && this.#rows[0][i] ? this.#rows[0][i] : 'Column ' + Utils.numericToAlphaColumn(i+1),
                 rowKey: i,
                 type: t, // skip row 0 as it contains the header
-                width: 0,
+                width: cW,
                 columnType: this.#getColumnTypeObj(t)
             });
         }
@@ -131,18 +145,41 @@ export class CsvProcessing {
         return 'text';
     }
 
+    #getColumnWidth(columnIndex, from=0, maxWidth=120) {
+        let width = 10, floatLen=0;
+
+        for (let i = from; i < this.#rows.length; i++) {
+            const v = this.#rows[i][columnIndex];
+
+            if (v && typeof v === 'string') {
+                let wx = Utils.excelStringWidth(v);
+                width = Math.max(width, wx);
+
+                if (width > maxWidth) {
+                    return maxWidth;
+                }
+            }
+        }
+        return Math.ceil(width);
+    }
+
     #convertRowData() {
-        for (let i = 1; i < this.#rows.length; i++) {
-            for (let y = 0; y < this.#rows[i].length; y++) {
+        for (let i = 0; i < this.#rows.length; i++) {
+            for (let y = 0; y < this.#columns.length; y++) {
                 const col = this.#columns[y];
-                if (col.type === 'number') {
-                    this.#rows[i][y] = parseInt(this.#rows[i][y]);
+                if (typeof this.#rows[i][y] === 'undefined' || this.#rows[i][y] === '') {
+                    this.#rows[i][y] = i===0 ? col.name : null;
 
-                } else if (col.type.substring(0,5) === 'float') {
-                    this.#rows[i][y] = parseFloat(this.#rows[i][y]);
+                } else if (i>0) {
+                    if (col.type === 'number') {
+                        this.#rows[i][y] = parseInt(this.#rows[i][y]);
 
-                } else if (col.type === 'date') {
-                    this.#rows[i][y] = Utils.parseDate(this.#rows[i][y]);
+                    } else if (col.type.substring(0,5) === 'float') {
+                        this.#rows[i][y] = parseFloat(this.#rows[i][y]);
+
+                    } else if (col.type === 'date' || col.type === 'datetime') {
+                        this.#rows[i][y] = Utils.parseDate(this.#rows[i][y]);
+                    }
                 }
             }
         }

@@ -2,23 +2,37 @@
 
 class Csv2Xlsx {
 
-    static async convertCsv(csvUrl, charset, updateFn) {
+    /**
+     * Converts a CSV to a xlsx Table
+     * @param {String} csvUrl URL to Fetch the csv
+     * @param {String} charset of CSV, default to Windows-1252
+     * @param {Function} updateFn
+     * @param {Bool} returnAsLink true, to return a <a> element instead of a Blob href
+     * @returns {String|Element}
+     */
+    static async convertCsv(csvUrl, charset=null, updateFn=null, returnAsLink=false) {
         try {
 
-            // default excel charset is Windows-1252
+            // default csv excel charset is Windows-1252
             if (!charset) {
                 charset = 'Windows-1252';
             }
 
-            updateFn({state:'download'});
+            if (updateFn) {
+                updateFn({state:'download'});
+            }
 
-            let rep = await fetch(csvUrl, { cache: 'no-cache' });
+            let rep = await fetch(csvUrl, { cache: 'no-store' });
             if (!rep.ok) {
-                updateFn({state:'fail', msg: 'download failed: ' + rep.statusText});
+                if (updateFn) {
+                    updateFn({state:'fail', msg: 'download failed: ' + rep.statusText});
+                }
                 return;
             }
 
-            updateFn({state:'processing'});
+            if (updateFn) {
+                updateFn({state:'processing'});
+            }
 
             const buf = await rep.arrayBuffer();
             const decoder = new TextDecoder(charset);
@@ -30,20 +44,24 @@ class Csv2Xlsx {
             const csvData = cp.getCsvData();
 
             // make a zip
-
-            console.log(csvData);
             const spst = await import('./xl/Spreadsheet.js');
             const sp = new spst.Spreadsheet('filename.xlsx', csvData, {});
 
-            const src = sp.getXlsx(true);
+            const convData = sp.getXlsx(returnAsLink);
 
-            updateFn({state:'finished', src:src});
+            if (updateFn && returnAsLink) {
+                updateFn({state:'finished', aElement: convData });
 
-            return src;
+            } else if (updateFn && !returnAsLink) {
+                updateFn({state:'finished', blobHref: convData });
+            }
+
+            return convData;
 
         } catch (e) {
-            console.log(e);
-            updateFn({state:'fail', msg: e.message ? e.message : e});
+            if (updateFn) {
+                updateFn({state:'fail', msg: e.message ? e.message : e});
+            }
         }
     }
 }

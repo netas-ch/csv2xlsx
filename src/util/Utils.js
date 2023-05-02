@@ -30,6 +30,20 @@ export class Utils {
     }
 
     /**
+     * Returns the String with in Excel unit (10 = 75px wide)
+     * @param {String} str
+     * @param {String} fontFamily
+     * @param {Number} fontSize
+     * @returns {Number}
+     */
+    static excelStringWidth(str, fontFamily='Calibri', fontSize=11) {
+        const oc = new OffscreenCanvas(5, 5), cx = oc.getContext('2d');
+        cx.font = fontSize + 'pt ' + fontFamily;
+        const pxWidth = cx.measureText(str).width;
+        return pxWidth * 0.1533333333;
+    }
+
+    /**
      * Convert a number to a string
      * Note that this function treats column letters as 1-based indices, so 'A' corresponds to 1, 'B' to 2, and so on.
      * @param {Number} column
@@ -55,10 +69,9 @@ export class Utils {
      * @returns {Number}
      */
     static dateToExcelTimestamp(date) {
-        const epochStart = new Date('1899-12-30T00:00:00'); // Excel epoch starts from Dec 30, 1899
+        const epochStart = new Date('1899-12-30T00:00:00Z'); // Excel epoch starts from Dec 30, 1899
         const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-        return (date.getTime() - epochStart.getTime()) / millisecondsPerDay;
-        // Add 1 to account for Excel's leap year bug ?
+        return ((date.getTime() - (date.getTimezoneOffset() * 60 * 1000)) - epochStart.getTime()) / millisecondsPerDay;
     }
 
     /**
