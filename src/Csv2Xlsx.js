@@ -1,21 +1,67 @@
+/*
+    MIT License
 
+    Copyright (c) 2023 Lukas Buchs, netas.ch
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+ */
 
 class Csv2Xlsx {
 
     /**
      * Converts a CSV to a xlsx Table
-     * @param {String} csvUrl URL to Fetch the csv
+     * @param {String} csvUrl URL to fetch the csv from
+     * @param {String} filename
+     * @param {Object} metaData
+     *                  > .title
+     *                  > .subject
+     *                  > .creator
+     *                  > .company
+     *                  > .lastModifiedBy
+     *                  > .created          (Date object, default to now)
+     *                  > .modified         (Date object, default to now)
      * @param {String} charset of CSV, default to Windows-1252
-     * @param {Function} updateFn
-     * @param {Bool} returnAsLink true, to return a <a> element instead of a Blob href
-     * @returns {String|Element}
+     * @param {Function} updateFn you can set a callback function to receive status informations.
+     * @param {Bool} returnAsLink false, to return a Blob href  instead of a <a> element
+     * @param {String} csvSeparator csv separator, null for auto
+     * @param {Object} formatCodes excel format codes. defaults to
+     *                  > .date: 'dd.mm.yyyy'
+     *                  > .datetime: 'dd.mm.yyyy h:mm'
+     *                  > .number: '#,##0'
+     *                  > .float: '#,##0.0'
+     *
+     * @returns {Promise} which resolves to {String|Element} Blob URL as String or Element depending on {returnAsLink}, default to String
      */
-    static async convertCsv(csvUrl, charset=null, updateFn=null, returnAsLink=false) {
+    static async convertCsv(csvUrl, filename=null, metaData=null, charset=null, updateFn=null, returnAsLink=true, csvSeparator=null, formatCodes=null) {
         try {
 
             // default csv excel charset is Windows-1252
             if (!charset) {
                 charset = 'Windows-1252';
+            }
+
+            if (!filename) {
+                filename = 'document';
+            }
+            if (filename.substr(filename.length-5).toLowerCase() !== '.xlsx') {
+                filename += '.xlsx';
             }
 
             if (updateFn) {
@@ -40,13 +86,12 @@ class Csv2Xlsx {
 
             // convert csv to json
             const csvp = await import('./csv/CsvProcessing.js');
-            const cp = new csvp.CsvProcessing(rawCsv);
+            const cp = new csvp.CsvProcessing(rawCsv, csvSeparator, formatCodes);
             const csvData = cp.getCsvData();
 
-            // make a zip
+            // create the spreadsheet
             const spst = await import('./xl/Spreadsheet.js');
-            const sp = new spst.Spreadsheet('filename.xlsx', csvData, {});
-
+            const sp = new spst.Spreadsheet(filename, csvData, metaData ? metaData : {});
             const convData = sp.getXlsx(returnAsLink);
 
             if (updateFn && returnAsLink) {

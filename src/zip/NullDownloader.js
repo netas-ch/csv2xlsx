@@ -62,13 +62,9 @@ export class NullDownloader {
 	 */
 	createDownloadLink(linkText) {
 		const link = linkText instanceof HTMLAnchorElement ? linkText : document.createElement('a');
-		if (typeof linkText === 'string') {
-			link.innerHTML = linkText;
-		}
 		link.href = this.createDownloadUrl();
 		link.download = this._filename;
-                link.innerText = this._filename;
-		
+                link.textContent = typeof linkText === 'string' && linkText ? linkText : this._filename;
 		return link;
 	}
 }
