@@ -33,8 +33,8 @@ export class CsvProcessing {
         text: '@',
         date: 'dd.mm.yyyy',
         datetime: 'dd.mm.yyyy h:mm',
-        number: '#,##0',
-        float: '#,##0.0'
+        number: '0',
+        float: '0.0'
     };
     #defaultColumnWidths = {
         text: 0,

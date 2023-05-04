@@ -41,14 +41,17 @@ export class Spreadsheet {
 
         // build the zip
 
+        // create one sheet with the csv data
+        const sheets = [metadata.title ? metadata.title : 'sheet 1'];
+
         // [Content_Types].xml
-        this.#zip.addFileFromString('[Content_Types].xml', ContentTypes.contentTypes());
+        this.#zip.addFileFromString('[Content_Types].xml', ContentTypes.contentTypes(sheets));
 
         // /_rels/.rels
         this.#zip.addFileFromString('_rels/.rels', ContentTypes.rels());
 
         // /docProps/app.xml
-        this.#zip.addFileFromString('docProps/app.xml', DocProps.app(null, metadata.company ? metadata.company : null));
+        this.#zip.addFileFromString('docProps/app.xml', DocProps.app(sheets, metadata.company ? metadata.company : null));
 
         // /docProps/core.xml
         this.#zip.addFileFromString('docProps/core.xml', DocProps.core(
@@ -64,8 +67,8 @@ export class Spreadsheet {
         this.#zip.addFileFromString('xl/styles.xml', Styles.styles(csv.columnTypes));
 
         // workbook
-        this.#zip.addFileFromString('xl/workbook.xml', Workbook.workbook());
-        this.#zip.addFileFromString('xl/_rels/workbook.xml.rels', Workbook.rels());
+        this.#zip.addFileFromString('xl/workbook.xml', Workbook.workbook(sheets));
+        this.#zip.addFileFromString('xl/_rels/workbook.xml.rels', Workbook.rels(sheets));
 
         // theme
         this.#zip.addFileFromString('xl/theme/theme1.xml', Theme.theme());

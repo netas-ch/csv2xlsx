@@ -7,7 +7,7 @@ Converts columns automatically to the correct column type and formats the data a
     Csv2Xlsx.convertCsv(csvUrl, filename, metaData, charset, updateFn, returnAsLink, csvSeparator, formatCodes)
         @param {String} csvUrl URL to fetch the csv from
         @param {String} filename
-        @param {Object} metaData
+        @param {Object} metaData              metaData of the generated xlsx
                          > .title
                          > .subject
                          > .creator

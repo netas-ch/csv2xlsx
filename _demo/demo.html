@@ -27,11 +27,12 @@
     <head>
         <title>Spreadsheet</title>
         <meta charset="UTF-8">
-        <script src="../src/Csv2Xlsx.js" type="text/javascript"></script>
         <script>
             window.onload = async () => {
 
-                // Meta-Data of the csv
+                let cvrt = await import('../src/Csv2Xlsx.js');
+
+                // Meta-Data of the xlsx
                 const metaData = {
                     title: 'My Demo Spreadsheet',
                     subject: 'A Demo for CSV to XLSX',
@@ -43,8 +44,9 @@
                 };
 
                 // create e <a> element to download the csv
-                let aTag = await Csv2Xlsx.convertCsv('./demodata.csv', 'demo.xlsx', metaData, 'UTF-8', updateState);
+                let aTag = await cvrt.Csv2Xlsx.convertCsv('./demodata.csv', null, metaData, 'UTF-8', updateState);
                 if (aTag) {
+                    console.log(aTag);
                     aTag.className = 'downloadLink';
                     document.body.appendChild(aTag);
 

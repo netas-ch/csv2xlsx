@@ -23,7 +23,7 @@
 
  */
 
-class Csv2Xlsx {
+export class Csv2Xlsx {
 
     /**
      * Converts a CSV to a xlsx Table
@@ -57,13 +57,6 @@ class Csv2Xlsx {
                 charset = 'Windows-1252';
             }
 
-            if (!filename) {
-                filename = 'document';
-            }
-            if (filename.substr(filename.length-5).toLowerCase() !== '.xlsx') {
-                filename += '.xlsx';
-            }
-
             if (updateFn) {
                 updateFn({state:'download'});
             }
@@ -80,6 +73,47 @@ class Csv2Xlsx {
                 updateFn({state:'processing'});
             }
 
+            // get filename from response header
+            if (!filename && rep.headers) {
+                // Content-Disposition: attachment; filename="super.csv"
+                let disp = rep.headers.get('Content-Disposition');
+                if (disp) {
+                    const fnM = disp.match(/filename=\"([^\"]+)\"/);
+                    filename = fnM[1];
+                    if (filename.substr(filename.length-4).toLowerCase() === '.csv') {
+                        filename = filename.substr(0, filename.length-4);
+                    }
+                }
+            }
+
+            // get filename from csv url
+            if (!filename) {
+                const csM = csvUrl.match(/\w+\.csv$/i);
+                if (csM) {
+                    filename = csM[0].substr(0, csM[0].length-4);
+                }
+            }
+
+            // default filename
+            if (!filename) {
+                filename = 'document';
+            }
+
+            // add xlsx extension
+            if (filename.substr(filename.length-5).toLowerCase() !== '.xlsx') {
+                filename += '.xlsx';
+            }
+
+            // metaData object
+            if (typeof metaData !== 'object') {
+                metaData = {};
+            }
+
+            // default title = filename
+            if (typeof metaData.title !== 'string') {
+                metaData.title = filename.substr(0, filename.length-5).replace('_', ' ');
+            }
+
             const buf = await rep.arrayBuffer();
             const decoder = new TextDecoder(charset);
             const rawCsv = decoder.decode(buf);
@@ -91,7 +125,7 @@ class Csv2Xlsx {
 
             // create the spreadsheet
             const spst = await import('./xl/Spreadsheet.js');
-            const sp = new spst.Spreadsheet(filename, csvData, metaData ? metaData : {});
+            const sp = new spst.Spreadsheet(filename, csvData, metaData);
             const convData = sp.getXlsx(returnAsLink);
 
             if (updateFn && returnAsLink) {
