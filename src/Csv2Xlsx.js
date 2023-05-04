@@ -86,6 +86,13 @@ export class Csv2Xlsx {
                 }
             }
 
+            if (rep.headers) {
+                const ctpe = rep.headers.get('Content-Type');
+                if (ctpe && !ctpe.match(/text\/csv/i) && !ctpe.match(/application\/octet-stream/i)) {
+                    throw new Error('invalid content type');
+                }
+            }
+
             // get filename from csv url
             if (!filename) {
                 const csM = csvUrl.match(/\w+\.csv$/i);
