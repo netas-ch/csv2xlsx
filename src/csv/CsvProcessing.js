@@ -133,6 +133,9 @@ export class CsvProcessing {
                     t = 'date';
                 }
 
+                // Compare with other rows
+                // -----------------------
+
                 if ((type === 'float' && t === 'number') || (type === 'number' && t === 'float')) {
                     type = 'float';
 
@@ -141,7 +144,12 @@ export class CsvProcessing {
                     return 'text';
 
                 // letters? then its text.
-                } else if (t === 'text' && t.match(/[a-zA-ZöüäÖÜÄéèàÉÈÀÂâ]{2}/)) {
+                } else if (t === 'text' && v.match(/[a-zA-ZöüäÖÜÄéèàÉÈÀÂâ]{2}/)) {
+                    return 'text';
+
+                // Excel will automatically convert numbers to Scientific Notation if longer than 15 digits.
+                // If you need to enter long numeric strings, but don't want them converted, then format the cells in question as Text.
+                } else if (t === 'number' && v.length > 15) {
                     return 'text';
 
                 // check next row

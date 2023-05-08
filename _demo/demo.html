@@ -43,10 +43,12 @@
                     modified: null // now
                 };
 
-                // create e <a> element to download the csv
+                // download the csv and convert it to a excel file
                 let aTag = await cvrt.Csv2Xlsx.convertCsv('./demodata.csv', null, metaData, 'UTF-8', updateState);
+
+                // return value is a <a> element, add it to the DOM to start the download
                 if (aTag) {
-                    console.log(aTag);
+
                     aTag.className = 'downloadLink';
                     document.body.appendChild(aTag);
 
