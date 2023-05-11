@@ -32,7 +32,7 @@ export class CsvProcessing {
     #defaultFormatCodes = {
         text: '@',
         date: 'dd.mm.yyyy',
-        datetime: 'dd.mm.yyyy h:mm',
+        datetime: 'dd.mm.yyyy hh:mm',
         number: '0',
         float: '0.0'
     };
@@ -70,6 +70,9 @@ export class CsvProcessing {
                 columnType: this.#getColumnTypeObj(t)
             });
         }
+
+        // make column names unique
+        this.#uniqueColumnNames();
 
         // convert
         this.#convertRowData();
@@ -192,10 +195,15 @@ export class CsvProcessing {
         for (let i = 0; i < this.#rows.length; i++) {
             for (let y = 0; y < this.#columns.length; y++) {
                 const col = this.#columns[y];
-                if (typeof this.#rows[i][y] === 'undefined' || this.#rows[i][y] === '') {
-                    this.#rows[i][y] = i===0 ? col.name : null;
 
-                } else if (i>0) {
+                // first row contains column names
+                if (i === 0) {
+                    this.#rows[i][y] = col.name;
+
+                } else if (typeof this.#rows[i][y] === 'undefined' || this.#rows[i][y] === '') {
+                    this.#rows[i][y] = null;
+
+                } else {
                     if (col.type === 'number') {
                         this.#rows[i][y] = parseInt(this.#rows[i][y]);
 
@@ -244,7 +252,26 @@ export class CsvProcessing {
         return nt;
     }
 
+    /**
+     * check that every column name is unique
+     */
+    #uniqueColumnNames() {
+        const nameArray = [];
+        for (const column of this.#columns) {
+            let suffix = '', cntr = 1;
 
+            while (nameArray.indexOf((column.name + suffix).toLowerCase()) !== -1) {
+                cntr++;
+                suffix = ' ' + cntr;
+            }
+
+            nameArray.push((column.name + suffix).toLowerCase());
+
+            if (suffix) {
+                column.name += suffix;
+            }
+        }
+    }
 
 }
 
