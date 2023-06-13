@@ -42,7 +42,12 @@ export class Spreadsheet {
         // build the zip
 
         // create one sheet with the csv data
-        const sheets = [metadata.title ? metadata.title : 'sheet 1'];
+        let sheetTitle = metadata.title ? metadata.title : 'sheet 1';
+        if (sheetTitle.length > 30) {
+            sheetTitle = sheetTitle.substring(0, 30) + '.';
+        }
+
+        const sheets = [ sheetTitle ];
 
         // [Content_Types].xml
         this.#zip.addFileFromString('[Content_Types].xml', ContentTypes.contentTypes(sheets));
