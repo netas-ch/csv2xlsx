@@ -64,7 +64,12 @@ export class Csv2Xlsx {
             let rep = await fetch(csvUrl, { cache: 'no-store' });
             if (!rep.ok) {
                 if (updateFn) {
-                    updateFn({state:'fail', msg: 'download failed: ' + rep.statusText});
+                    let repObj = null;
+                    if (rep.headers.get('Content-Type') === 'application/json') {
+                        repObj = await rep.json();
+                    }
+
+                    updateFn({state:'fail', msg: 'download failed: ' + rep.statusText, code: rep.status, responseJson: repObj});
                 }
                 return;
             }
