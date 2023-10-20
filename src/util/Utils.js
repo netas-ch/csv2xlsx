@@ -145,7 +145,7 @@ export class Utils {
      * @returns {Boolean}
      */
     static stringIsFloat(str) {
-        return !!(!Utils.stringIsInteger(str) && !isNaN(parseFloat(str)) && str.match(/^\d+(?:\.\d+)?$/));
+        return !!(!Utils.stringIsInteger(str) && !isNaN(parseFloat(str)) && str.match(/^\-?\d+(?:\.\d+)?$/));
     }
 
     /**
