@@ -43,6 +43,10 @@ export class Spreadsheet {
 
         // create one sheet with the csv data
         let sheetTitle = metadata.title ? metadata.title : 'sheet 1';
+
+        // replace the following characters as they're not allowed as sheet title:  \  /  ?  *  [ ] :
+        sheetTitle = sheetTitle.replace(/[\\\/\?\*\[\]\:]/g, '-');
+
         if (sheetTitle.length > 30) {
             sheetTitle = sheetTitle.substring(0, 30) + '.';
         }
