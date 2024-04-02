@@ -59,7 +59,7 @@ async function downloadAsExcel() {
 check out [_demo/demo.html](https://raw.githack.com/netas-ch/csv2xlsx/main/_demo/demo.html) for a simple demo
 
 ## license
-Copyright © 2023 Lukas Buchs, [netas.ch](https://netas.ch), [MIT licensed](./LICENSE).
+Copyright © 2024 Lukas Buchs, [netas.ch](https://netas.ch), [Apache License, Version 2.0](./LICENSE).
 
 ### used third party code
  * https://github.com/Neovici/nullxlsx Copyright © 2020 Neovici, Apache License 2.0
