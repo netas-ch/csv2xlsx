@@ -1,0 +1,14 @@
+{
+  "name": "csv2xlsx",
+  "version": "1.0.0",
+  "description": "JavaScript csv to spreadsheet (xlsx) converter",
+  "author": "Lukas Buchs, netas.ch",
+  "homepage": "https://www.netas.ch",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netas-ch/csv2xlsx"
+  },
+  "browser": "src/Csv2Xlsx.js",
+  "files": ["src"]
+}

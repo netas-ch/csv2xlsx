@@ -54,6 +54,11 @@ async function downloadAsExcel() {
     aTag.click();
 }
 ```
+## browser support
+the latest versions of
+* Firefox (Gecko)
+* Chrome/Edge (Blink)
+* Safari (Webkit)
 
 ## demo
 check out [_demo/demo.html](https://raw.githack.com/netas-ch/csv2xlsx/main/_demo/demo.html) for a simple demo
