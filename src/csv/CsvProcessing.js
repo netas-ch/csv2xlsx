@@ -55,7 +55,7 @@ export class CsvProcessing {
             }
 
             this.#columns.push({
-                name: this.#rows && this.#rows[0] && this.#rows[0][i] ? this.#rows[0][i] : 'Column ' + Utils.numericToAlphaColumn(i+1),
+                name: this.#getValidColumnName(this.#rows && this.#rows[0] && this.#rows[0][i] ? this.#rows[0][i] : null, i+1),
                 rowKey: i,
                 type: t, // skip row 0 as it contains the header
                 width: cW,
@@ -92,6 +92,20 @@ export class CsvProcessing {
             cnt = Math.max(cnt, this.#rows[i].length);
         }
         return cnt;
+    }
+
+    #getValidColumnName(str, colNr) {
+        if (str) {
+
+            // line breaks are not allowed in column headers
+            str = str.replace(/(\w)\-[\r\n]+(\w)/g, '$1$2').replace(/[\r\n\t]/g, ' ').trim();
+            if (str) {
+                return str;
+            }
+        }
+
+        // return default
+        return 'Column ' + Utils.numericToAlphaColumn(colNr);
     }
 
     /**
