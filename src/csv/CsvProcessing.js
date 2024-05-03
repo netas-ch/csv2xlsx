@@ -51,7 +51,7 @@ export class CsvProcessing {
             // column width
             let cW = this.#defaultColumnWidths[t] ? this.#defaultColumnWidths[t] : 0;
             if (t === 'text') {
-                cW = this.#getColumnWidth(i, 1);
+                cW = this.#getColumnWidth(i);
             }
 
             this.#columns.push({
@@ -186,7 +186,7 @@ export class CsvProcessing {
             const v = this.#rows[i][columnIndex];
 
             if (v && typeof v === 'string') {
-                let wx = Utils.excelStringWidth(v);
+                let wx = Utils.excelStringWidth(v, i===0);
                 width = Math.max(width, wx);
 
                 if (width > maxWidth) {

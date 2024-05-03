@@ -1,6 +1,6 @@
 {
   "name": "netas-csv2xlsx",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "JavaScript csv to spreadsheet (xlsx) converter",
   "author": "Lukas Buchs, netas.ch",
   "homepage": "https://www.netas.ch",

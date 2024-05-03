@@ -42,13 +42,14 @@ export class Utils {
     /**
      * Returns the String with in Excel unit (10 = 75px wide)
      * @param {String} str
+     * @param {Boolean} bold
      * @param {String} fontFamily
      * @param {Number} fontSize
      * @returns {Number}
      */
-    static excelStringWidth(str, fontFamily='Calibri', fontSize=11) {
+    static excelStringWidth(str, bold=false, fontFamily='Calibri', fontSize=11) {
         const oc = new OffscreenCanvas(5, 5), cx = oc.getContext('2d');
-        cx.font = fontSize + 'pt ' + fontFamily;
+        cx.font = (bold ? 'bold ' : '') + fontSize + 'pt ' + fontFamily;
         const pxWidth = cx.measureText(str).width;
         return pxWidth * 0.1533333333;
     }
