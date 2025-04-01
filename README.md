@@ -1,6 +1,7 @@
 # csv2xlsx
 JavaScript csv to spreadsheet (xlsx) converter.
 Converts columns automatically to the correct column type and formats the data as a table, which allows simple filtering of data.
+For numerical values and floats, a sum row is added, for percentage values the average value.
 
 ## parameter documentation
 
@@ -25,6 +26,7 @@ Converts columns automatically to the correct column type and formats the data a
                          > .datetime: 'dd.mm.yyyy hh:mm'
                          > .number: '0'
                          > .float: '0.0'
+                         > .percentage: '0%'
 
         @return {Promise} which resolves to {String|Element} Blob URL or Element depending on {returnAsLink}, default to String
 

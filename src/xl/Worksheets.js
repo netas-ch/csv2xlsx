@@ -30,7 +30,7 @@ export class Worksheets {
         const xmlnsX14ac = 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac';
         const xml = new XmlBuilder('worksheet', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         xml.setAttribute('root', 'Ignorable', 'x14ac', 'http://schemas.openxmlformats.org/markup-compatibility/2006');
-        const tableDimension = 'A1:' + Utils.numericToAlphaColumn(columns.length) + rows.length.toString();
+        const tableDimension = 'A1:' + Utils.numericToAlphaColumn(columns.length) + (rows.length+1).toString();
 
         xml.createAppend('root', 'dimension', null, { ref: tableDimension });
 
@@ -87,7 +87,6 @@ export class Worksheets {
                     if (rowNr === 1 || !column.type || column.type === 'text') {
 
                         // inline string
-                        //xml.createAppend(xml.createAppend(cEl, 'is'), 't', null, null, val);
                         xml.createAppend(cEl, 'v', null, null, val);
 
                     } else {
@@ -98,6 +97,42 @@ export class Worksheets {
                 }
             }
         }
+
+        // summary row
+        const rowNr = rows.length + 1;
+        let rowEl = xml.createAppend(sheetData, 'row', null, {r: rowNr.toString(), spans: '1:' + columns.length.toString() });
+        xml.setAttribute(rowEl, 'x14ac:dyDescent', '0.35', xmlnsX14ac);
+
+        for (const column of columns) {
+            const colNr = columns.indexOf(column) + 1, attributes = {};
+
+            // attributes
+            attributes.r = Utils.numericToAlphaColumn(colNr) + rowNr.toString();
+
+            // field type
+            if (column.type) {
+                attributes.s = columnTypes.indexOf(column.columnType) + 1;
+            }
+
+            // column
+            const cEl = xml.createAppend(rowEl, 'c', null, attributes);
+
+            let formula = '';
+            if (column.totalFormula) {
+                formula = column.totalFormula;
+            } else if (column.type === 'number' || column.type.startsWith('float')) {
+                formula = 'SUM';
+            } else if (column.type.startsWith('percentage')) {
+                formula = 'AVERAGE';
+            }
+
+            // summary row
+            if (formula) {
+                xml.createAppend(cEl, 'f', null, null, formula + '(Tabelle1[' + column.name + '])');
+            }
+        }
+
+
 
         // tableParts
         const tableParts = xml.createAppend('root', 'tableParts', null, {count: '1'});

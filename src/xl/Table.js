@@ -24,17 +24,20 @@ export class Table {
      * @param {Array} columnTypes
      * @param {Array} columns
      * @param {Array} rows
+     * @param {Number} tableId
      * @returns {String}
      */
     static table(columnTypes, columns, rows, tableId=1) {
         const xmlnsX14ac = 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac';
         const xml = new XmlBuilder('table', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         const tableDimension = 'A1:' + Utils.numericToAlphaColumn(columns.length) + rows.length.toString();
+        const tableDimensionWithSum = 'A1:' + Utils.numericToAlphaColumn(columns.length) + (rows.length+1).toString();
 
         xml.setAttribute('root', 'id', tableId.toString());
         xml.setAttribute('root', 'name', 'Tabelle' + tableId);
         xml.setAttribute('root', 'displayName', 'Tabelle' + tableId);
-        xml.setAttribute('root', 'ref', tableDimension);
+        xml.setAttribute('root', 'ref', tableDimensionWithSum);
+        xml.setAttribute('root', 'totalsRowCount', '1');
 
         xml.createAppend('root', 'autoFilter', null, {ref: tableDimension});
         const tableColumns = xml.createAppend('root', 'tableColumns', null, {count: columns.length });
@@ -48,19 +51,25 @@ export class Table {
                 name: column.name
             };
 
-            if (column.columnType) {
-                if (columnTypes.indexOf(column.columnType) !== -1) {
-              //      attributes.dataDxfId = columnTypes.indexOf(column.columnType);
-                }
-                if (column.columnType.totalsRowFunction) {
-                    attributes.totalsRowFunction = column.columnType.totalsRowFunction;
-                }
-                if (column.columnType.totalsRowLabel) {
-                    attributes.totalsRowLabel = column.columnType.totalsRowLabel;
-                }
+            let formula = '';
+            if (column.totalFormula) {
+                formula = column.totalFormula;
+            } else if (column.type === 'number' || column.type.startsWith('float')) {
+                formula = 'SUM';
+            } else if (column.type.startsWith('percentage')) {
+                formula = 'AVERAGE';
             }
 
-            xml.createAppend(tableColumns, 'tableColumn', null, attributes);
+            if (formula) {
+                attributes.totalsRowFunction = 'custom';
+                attributes.totalsRowDxfId = '0';
+            }
+
+            const tableColumn = xml.createAppend(tableColumns, 'tableColumn', null, attributes);
+
+            if (formula) {
+                xml.createAppend(tableColumn, 'totalsRowFormula', null, null, formula + '(Tabelle' + tableId + '[' + column.name + '])');
+            }
         }
 
         // tableStyleInfo
