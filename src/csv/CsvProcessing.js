@@ -26,14 +26,16 @@ export class CsvProcessing {
         date: 'dd.mm.yyyy',
         datetime: 'dd.mm.yyyy hh:mm',
         number: '0',
-        float: '0.0'
+        float: '0.0',
+        percentage: '0%'
     };
     #defaultColumnWidths = {
         text: 0,
         date: 12,
         datetime: 16,
         number: 0,
-        float: 0
+        float: 0,
+        percentage: 0
     };
 
     constructor(csvString, csvSeparator, formatCodes) {
@@ -59,7 +61,8 @@ export class CsvProcessing {
                 rowKey: i,
                 type: t, // skip row 0 as it contains the header
                 width: cW,
-                columnType: this.#getColumnTypeObj(t)
+                columnType: this.#getColumnTypeObj(t),
+                totalFormula: null
             });
         }
 
@@ -140,6 +143,12 @@ export class CsvProcessing {
 
                 } else if (Utils.stringIsDate(v)) {
                     t = 'date';
+
+                // percentage value 20%
+                } else if (v.match(/^\d+(?:\.(\d+))?\s*%$/)) {
+                    t = 'percentage';
+                    const mt = v.match(/^\d+(?:\.(\d+))?\s*%$/);
+                    floatLen = Math.max(floatLen, mt[1] ? mt[1].length : 0);
                 }
 
                 // Compare with other rows
@@ -168,8 +177,8 @@ export class CsvProcessing {
             }
         }
 
-        if (type === 'float') {
-            return 'float' + floatLen;
+        if (type === 'float' || type === 'percentage') {
+            return type + floatLen;
         }
 
         if (type !== '') {
@@ -213,8 +222,11 @@ export class CsvProcessing {
                     if (col.type === 'number') {
                         this.#rows[i][y] = parseInt(this.#rows[i][y]);
 
-                    } else if (col.type.substring(0,5) === 'float') {
+                    } else if (col.type.startsWith('float')) {
                         this.#rows[i][y] = parseFloat(this.#rows[i][y]);
+
+                    } else if (col.type.startsWith('percentage')) {
+                        this.#rows[i][y] = parseFloat(this.#rows[i][y].substring(0,this.#rows[i][y].length-1).trim()) / 100;
 
                     } else if (col.type === 'date' || col.type === 'datetime') {
                         this.#rows[i][y] = Utils.parseDate(this.#rows[i][y]);
@@ -232,10 +244,18 @@ export class CsvProcessing {
         if (!formatCode) {
             if (this.#defaultFormatCodes[typeStr]) {
                 formatCode = this.#defaultFormatCodes[typeStr];
-            } else if (typeStr.substring(0,5) === 'float') {
+
+            } else if (typeStr.startsWith('float')) {
                 formatCode = this.#defaultFormatCodes.float;
                 let floatLen = parseInt(typeStr.substring(5));
                 formatCode += ''.padEnd(floatLen-1, '0');
+
+            } else if (typeStr.startsWith('percentage')) {
+                formatCode = this.#defaultFormatCodes.percentage;
+                let floatLen = parseInt(typeStr.substring('percentage'.length));
+                if (floatLen > 0 && formatCode === '0%') {
+                    formatCode = '0.' + ('0'.repeat(floatLen)) + '%';
+                }
             }
         }
 
