@@ -65,6 +65,9 @@ the latest versions of
 ## demo
 check out [_demo/demo.html](https://raw.githack.com/netas-ch/csv2xlsx/main/_demo/demo.html) for a simple demo
 
+## npm
+[netas-csv2xlsx](https://www.npmjs.com/package/netas-csv2xlsx)
+
 ## license
 Copyright © 2024 Lukas Buchs, [netas.ch](https://netas.ch), [Apache License, Version 2.0](./LICENSE).
 
