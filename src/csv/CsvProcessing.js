@@ -26,16 +26,16 @@ export class CsvProcessing {
         date: 'dd.mm.yyyy',
         datetime: 'dd.mm.yyyy hh:mm',
         number: '0',
-        float: '0.0',
+        float: '#,##0.0',
         percentage: '0%'
     };
     #defaultColumnWidths = {
-        text: 0,
+        text: 10,
         date: 12,
         datetime: 16,
-        number: 0,
-        float: 0,
-        percentage: 0
+        number: 10,
+        float: 10,
+        percentage: 10
     };
 
     constructor(csvString, csvSeparator, formatCodes) {
@@ -51,10 +51,7 @@ export class CsvProcessing {
             const t = this.#getColumnType(i, 1);
 
             // column width
-            let cW = this.#defaultColumnWidths[t] ? this.#defaultColumnWidths[t] : 0;
-            if (t === 'text') {
-                cW = this.#getColumnWidth(i);
-            }
+            const cW = this.#defaultColumnWidths[t] ? this.#defaultColumnWidths[t] : 10;
 
             this.#columns.push({
                 name: this.#getValidColumnName(this.#rows && this.#rows[0] && this.#rows[0][i] ? this.#rows[0][i] : null, i+1),
@@ -71,6 +68,12 @@ export class CsvProcessing {
 
         // convert
         this.#convertRowData();
+
+        // adjust column width to content
+        this.#columns.forEach((column, i) => {
+            column.width = this.#getColumnWidth(i, column.width);
+        });
+
     }
 
     getCsvData() {
@@ -188,11 +191,15 @@ export class CsvProcessing {
         return 'text';
     }
 
-    #getColumnWidth(columnIndex, from=0, maxWidth=120) {
-        let width = 10, floatLen=0;
+    #getColumnWidth(columnIndex, width, maxWidth=120) {
+        const columnType = this.#columns[columnIndex] && this.#columns[columnIndex].columnType ? this.#columns[columnIndex].columnType : null;
 
-        for (let i = from; i < this.#rows.length; i++) {
-            const v = this.#rows[i][columnIndex];
+        for (let i = 0; i < this.#rows.length; i++) {
+            let v = this.#rows[i][columnIndex];
+
+            if (typeof v === 'number') {
+                v = this.#getNumberAsString(v, columnType ? columnType.fractionDigits : 0);
+            }
 
             if (v && typeof v === 'string') {
                 let wx = Utils.excelStringWidth(v, i===0);
@@ -238,8 +245,10 @@ export class CsvProcessing {
 
     #getColumnTypeObj(typeStr, formatCode='') {
         if (typeStr === 'text') {
-             return null;
+            return null;
         }
+
+        let fractionDigits = 0;
 
         if (!formatCode) {
             if (this.#defaultFormatCodes[typeStr]) {
@@ -247,14 +256,16 @@ export class CsvProcessing {
 
             } else if (typeStr.startsWith('float')) {
                 formatCode = this.#defaultFormatCodes.float;
-                let floatLen = parseInt(typeStr.substring(5));
-                formatCode += ''.padEnd(floatLen-1, '0');
+                fractionDigits = parseInt(typeStr.substring(5));
+                if (fractionDigits > 1 && formatCode.endsWith('.0')) { // add the same precision as in the csv.
+                    formatCode += '0'.repeat(fractionDigits - 1);
+                }
 
             } else if (typeStr.startsWith('percentage')) {
                 formatCode = this.#defaultFormatCodes.percentage;
-                let floatLen = parseInt(typeStr.substring('percentage'.length));
-                if (floatLen > 0 && formatCode === '0%') {
-                    formatCode = '0.' + ('0'.repeat(floatLen)) + '%';
+                fractionDigits = parseInt(typeStr.substring('percentage'.length));
+                if (fractionDigits > 0 && formatCode === '0%') {
+                    formatCode = '0.' + ('0'.repeat(fractionDigits)) + '%';
                 }
             }
         }
@@ -270,12 +281,20 @@ export class CsvProcessing {
         const nt = {
             type: typeStr,
             formatCode: formatCode,
+            fractionDigits: fractionDigits,
             applyNumberFormat: 1,
             numFmtId: null
         };
         this.#columnTypes.push(nt);
 
         return nt;
+    }
+
+    #getNumberAsString(num, fractionDigits) {
+        return num.toLocaleString('en-US', {
+            minimumFractionDigits: fractionDigits,
+            maximumFractionDigits: fractionDigits
+        });
     }
 
     /**
