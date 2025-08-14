@@ -77,8 +77,8 @@ export class Csv2Xlsx {
                 if (disp) {
                     const fnM = disp.match(/filename=\"([^\"]+)\"/);
                     filename = fnM[1];
-                    if (filename.substr(filename.length-4).toLowerCase() === '.csv') {
-                        filename = filename.substr(0, filename.length-4);
+                    if (filename.substring(filename.length-4).toLowerCase() === '.csv') {
+                        filename = filename.substring(0, filename.length-4);
                     }
                 }
             }
@@ -94,7 +94,7 @@ export class Csv2Xlsx {
             if (!filename) {
                 const csM = csvUrl.match(/\w+\.csv$/i);
                 if (csM) {
-                    filename = csM[0].substr(0, csM[0].length-4);
+                    filename = csM[0].substring(0, csM[0].length-4);
                 }
             }
 
@@ -104,7 +104,7 @@ export class Csv2Xlsx {
             }
 
             // add xlsx extension
-            if (filename.substr(filename.length-5).toLowerCase() !== '.xlsx') {
+            if (filename.substring(filename.length-5).toLowerCase() !== '.xlsx') {
                 filename += '.xlsx';
             }
 
@@ -115,7 +115,7 @@ export class Csv2Xlsx {
 
             // default title = filename
             if (typeof metaData.title !== 'string') {
-                metaData.title = filename.substr(0, filename.length-5).replace('_', ' ');
+                metaData.title = filename.substring(0, filename.length-5).replace('_', ' ');
             }
 
             const buf = await rep.arrayBuffer();

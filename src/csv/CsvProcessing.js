@@ -216,27 +216,30 @@ export class CsvProcessing {
     #convertRowData() {
         for (let i = 0; i < this.#rows.length; i++) {
             for (let y = 0; y < this.#columns.length; y++) {
-                const col = this.#columns[y];
+                const col = this.#columns[y], cellValue = this.#rows[i][y];
 
                 // first row contains column names
                 if (i === 0) {
                     this.#rows[i][y] = col.name;
 
-                } else if (typeof this.#rows[i][y] === 'undefined' || this.#rows[i][y] === '') {
+                } else if (typeof cellValue === 'undefined' || cellValue === '') {
                     this.#rows[i][y] = null;
 
                 } else {
                     if (col.type === 'number') {
-                        this.#rows[i][y] = parseInt(this.#rows[i][y]);
+                        this.#rows[i][y] = parseInt(cellValue);
 
                     } else if (col.type.startsWith('float')) {
-                        this.#rows[i][y] = parseFloat(this.#rows[i][y]);
+                        this.#rows[i][y] = parseFloat(cellValue);
 
                     } else if (col.type.startsWith('percentage')) {
-                        this.#rows[i][y] = parseFloat(this.#rows[i][y].substring(0,this.#rows[i][y].length-1).trim()) / 100;
+                        this.#rows[i][y] = parseFloat(cellValue.substring(0,cellValue.length-1).trim()) / 100;
 
                     } else if (col.type === 'date' || col.type === 'datetime') {
-                        this.#rows[i][y] = Utils.parseDate(this.#rows[i][y]);
+                        this.#rows[i][y] = Utils.parseDate(cellValue);
+
+                    } else if (col.type === 'text' && typeof cellValue === 'string' && cellValue !== '') {
+                        this.#rows[i][y] = cellValue.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ' '); // remove special chars
                     }
                 }
             }
