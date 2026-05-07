@@ -19,7 +19,7 @@ For numerical values and floats, a sum row is added, for percentage values the a
 
         @param {String} charset             charset of CSV, default to Windows-1252
         @param {Function} updateFn          you can set a callback function to receive status informations.
-        @param {Bool} returnAsLink          false, to return a Blob url as string instead of a <a> element
+        @param {Boolean} returnAsLink          false, to return a Blob url as string instead of a <a> element
         @param {String} csvSeparator        csv separator, null for auto
         @param {Object} formatCodes         excel format codes. defaults to
                          > .date: 'dd.mm.yyyy'
@@ -27,6 +27,7 @@ For numerical values and floats, a sum row is added, for percentage values the a
                          > .number: '0'
                          > .float: '0.0'
                          > .percentage: '0%'
+        @param {Boolean} showSummaryRow        false, to hide the summary row
 
         @return {Promise} which resolves to {String|Element} Blob URL or Element depending on {returnAsLink}, default to String
 

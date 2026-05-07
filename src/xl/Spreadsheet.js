@@ -1,5 +1,5 @@
 /*
-        Copyright (c) 2024 Lukas Buchs, netas.ch
+    Copyright (c) 2024 Lukas Buchs, netas.ch
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import {NullZipArchive} from '../zip/NullZipArchive.js';
 export class Spreadsheet {
     #zip;
 
-    constructor(filename, csv, metadata) {
+    constructor(filename, csv, metadata, showSummaryRow) {
         const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
         this.#zip = new NullZipArchive(filename, false, mime);
 
@@ -75,10 +75,10 @@ export class Spreadsheet {
         this.#zip.addFileFromString('xl/theme/theme1.xml', Theme.theme());
 
         // tables
-        this.#zip.addFileFromString('xl/tables/table1.xml', Table.table(csv.columnTypes, csv.columns, csv.rows));
+        this.#zip.addFileFromString('xl/tables/table1.xml', Table.table(csv.columnTypes, csv.columns, csv.rows, showSummaryRow));
 
         // worksheets
-        this.#zip.addFileFromString('xl/worksheets/sheet1.xml', Worksheets.sheet(csv.columnTypes, csv.columns, csv.rows));
+        this.#zip.addFileFromString('xl/worksheets/sheet1.xml', Worksheets.sheet(csv.columnTypes, csv.columns, csv.rows, showSummaryRow));
         this.#zip.addFileFromString('xl/worksheets/_rels/sheet1.xml.rels', Worksheets.rels());
     }
 

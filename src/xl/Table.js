@@ -1,5 +1,5 @@
 /*
-        Copyright (c) 2024 Lukas Buchs, netas.ch
+    Copyright (c) 2024 Lukas Buchs, netas.ch
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ export class Table {
      * @param {Array} columnTypes
      * @param {Array} columns
      * @param {Array} rows
+     * @param {Boolean} showSummaryRow
      * @param {Number} tableId
      * @returns {String}
      */
-    static table(columnTypes, columns, rows, tableId=1) {
+    static table(columnTypes, columns, rows, showSummaryRow, tableId=1) {
         const xmlnsX14ac = 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac';
         const xml = new XmlBuilder('table', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         const tableDimension = 'A1:' + Utils.numericToAlphaColumn(columns.length) + rows.length.toString();
@@ -36,8 +37,10 @@ export class Table {
         xml.setAttribute('root', 'id', tableId.toString());
         xml.setAttribute('root', 'name', 'Tabelle' + tableId);
         xml.setAttribute('root', 'displayName', 'Tabelle' + tableId);
-        xml.setAttribute('root', 'ref', tableDimensionWithSum);
-        xml.setAttribute('root', 'totalsRowCount', '1');
+        xml.setAttribute('root', 'ref', (showSummaryRow ? tableDimensionWithSum : tableDimension));
+        if (showSummaryRow) {
+            xml.setAttribute('root', 'totalsRowCount', '1');
+        }
 
         xml.createAppend('root', 'autoFilter', null, {ref: tableDimension});
         const tableColumns = xml.createAppend('root', 'tableColumns', null, {count: columns.length });
@@ -68,7 +71,7 @@ export class Table {
             const tableColumn = xml.createAppend(tableColumns, 'tableColumn', null, attributes);
 
             if (formula) {
-                xml.createAppend(tableColumn, 'totalsRowFormula', null, null, formula + '(Tabelle' + tableId + '[' + column.name + '])');
+                xml.createAppend(tableColumn, 'totalsRowFormula', null, null, formula + '(Tabelle' + tableId + '[' + column.name.replace(/'/g, "''") + '])');
             }
         }
 

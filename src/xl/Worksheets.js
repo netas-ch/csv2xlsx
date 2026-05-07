@@ -1,5 +1,5 @@
 /*
-        Copyright (c) 2024 Lukas Buchs, netas.ch
+    Copyright (c) 2024 Lukas Buchs, netas.ch
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ export class Worksheets {
      * @param {Array} columnTypes
      * @param {Array} columns
      * @param {Array} rows
+     * @param {Boolean} showSummaryRow
      * @returns {String}
      */
-    static sheet(columnTypes, columns, rows) {
+    static sheet(columnTypes, columns, rows, showSummaryRow) {
         const xmlnsX14ac = 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac';
         const xml = new XmlBuilder('worksheet', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         xml.setAttribute('root', 'Ignorable', 'x14ac', 'http://schemas.openxmlformats.org/markup-compatibility/2006');
@@ -99,39 +100,43 @@ export class Worksheets {
         }
 
         // summary row
-        const rowNr = rows.length + 1;
-        let rowEl = xml.createAppend(sheetData, 'row', null, {r: rowNr.toString(), spans: '1:' + columns.length.toString() });
-        xml.setAttribute(rowEl, 'x14ac:dyDescent', '0.35', xmlnsX14ac);
+        if (showSummaryRow) {
+            const rowNr = rows.length + 1;
+            let rowEl = xml.createAppend(sheetData, 'row', null, {
+                r: rowNr.toString(),
+                spans: '1:' + columns.length.toString()
+            });
+            xml.setAttribute(rowEl, 'x14ac:dyDescent', '0.35', xmlnsX14ac);
 
-        for (const column of columns) {
-            const colNr = columns.indexOf(column) + 1, attributes = {};
+            for (const column of columns) {
+                const colNr = columns.indexOf(column) + 1, attributes = {};
 
-            // attributes
-            attributes.r = Utils.numericToAlphaColumn(colNr) + rowNr.toString();
+                // attributes
+                attributes.r = Utils.numericToAlphaColumn(colNr) + rowNr.toString();
 
-            // field type
-            if (column.type) {
-                attributes.s = columnTypes.indexOf(column.columnType) + 1;
-            }
+                // field type
+                if (column.type) {
+                    attributes.s = columnTypes.indexOf(column.columnType) + 1;
+                }
 
-            // column
-            const cEl = xml.createAppend(rowEl, 'c', null, attributes);
+                // column
+                const cEl = xml.createAppend(rowEl, 'c', null, attributes);
 
-            let formula = '';
-            if (column.totalFormula) {
-                formula = column.totalFormula;
-            } else if (column.type === 'number' || column.type.startsWith('float')) {
-                formula = 'SUM';
-            } else if (column.type.startsWith('percentage')) {
-                formula = 'AVERAGE';
-            }
+                let formula = '';
+                if (column.totalFormula) {
+                    formula = column.totalFormula;
+                } else if (column.type === 'number' || column.type.startsWith('float')) {
+                    formula = 'SUM';
+                } else if (column.type.startsWith('percentage')) {
+                    formula = 'AVERAGE';
+                }
 
-            // summary row
-            if (formula) {
-                xml.createAppend(cEl, 'f', null, null, formula + '(Tabelle1[' + column.name + '])');
+                // summary row
+                if (formula) {
+                    xml.createAppend(cEl, 'f', null, null, formula + '(Tabelle1[' + column.name.replace(/'/g, "''") + '])');
+                }
             }
         }
-
 
 
         // tableParts

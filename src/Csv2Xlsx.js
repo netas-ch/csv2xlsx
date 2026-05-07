@@ -31,17 +31,18 @@ export class Csv2Xlsx {
      *                  > .modified         (Date object, default to now)
      * @param {String} charset of CSV, default to Windows-1252
      * @param {Function} updateFn you can set a callback function to receive status informations.
-     * @param {Bool} returnAsLink false, to return a Blob href  instead of a <a> element
+     * @param {Boolean} returnAsLink false, to return a Blob href  instead of a <a> element
      * @param {String} csvSeparator csv separator, null for auto
      * @param {Object} formatCodes excel format codes. defaults to
      *                  > .date: 'dd.mm.yyyy'
      *                  > .datetime: 'dd.mm.yyyy h:mm'
      *                  > .number: '#,##0'
      *                  > .float: '#,##0.0'
+     * @param {Boolean} showSummaryRow false, to hide the summary row
      *
      * @returns {Promise} which resolves to {String|Element} Blob URL as String or Element depending on {returnAsLink}, default to String
      */
-    static async convertCsv(csvUrl, filename=null, metaData=null, charset=null, updateFn=null, returnAsLink=true, csvSeparator=null, formatCodes=null) {
+    static async convertCsv(csvUrl, filename=null, metaData=null, charset=null, updateFn=null, returnAsLink=true, csvSeparator=null, formatCodes=null, showSummaryRow=true) {
         try {
 
             // default csv excel charset is Windows-1252
@@ -72,6 +73,7 @@ export class Csv2Xlsx {
 
             // get filename from response header
             if (!filename && rep.headers) {
+
                 // Content-Disposition: attachment; filename="super.csv"
                 let disp = rep.headers.get('Content-Disposition');
                 if (disp) {
@@ -129,7 +131,7 @@ export class Csv2Xlsx {
 
             // create the spreadsheet
             const spst = await import('./xl/Spreadsheet.js');
-            const sp = new spst.Spreadsheet(filename, csvData, metaData);
+            const sp = new spst.Spreadsheet(filename, csvData, metaData, showSummaryRow);
             const convData = sp.getXlsx(returnAsLink);
 
             if (updateFn && returnAsLink) {
